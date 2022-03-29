@@ -32,29 +32,29 @@ public static byte[,,] BitmapToByteRGB(Bitmap bmp)
 [2,x,y] - это значение  зеленой  составляющей пикселя по координатам x и y;
 */
 public unsafe static byte[,,] BitmapToByteRGBQuick(Bitmap bmp)
+{
+    int width = bmp.Width,
+        height = bmp.Height;
+    byte[,,] res = new byte[3, height, width];
+    BitmapData bd = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly,
+        PixelFormat.Format24bppRgb);
+    try
+    {
+        byte* curpos;
+        for (int h = 0; h < height; h++)
         {
-            int width = bmp.Width,
-                height = bmp.Height;
-            byte[,,] res = new byte[3, height, width];
-            BitmapData bd = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly,
-                PixelFormat.Format24bppRgb);
-            try
+            curpos = ((byte*)bd.Scan0) + h * bd.Stride;
+            for (int w = 0; w < width; w++)
             {
-                byte* curpos;
-                for (int h = 0; h < height; h++)
-                {
-                    curpos = ((byte*)bd.Scan0) + h * bd.Stride;
-                    for (int w = 0; w < width; w++)
-                    {
-                        res[2, h, w] = *(curpos++);
-                        res[1, h, w] = *(curpos++);
-                        res[0, h, w] = *(curpos++);
-                    }
-                }
+                res[2, h, w] = *(curpos++);
+                res[1, h, w] = *(curpos++);
+                res[0, h, w] = *(curpos++);
             }
-            finally
-            {
-                bmp.UnlockBits(bd);
-            }
-            return res;
         }
+    }
+    finally
+    {
+        bmp.UnlockBits(bd);
+    }
+    return res;
+}
